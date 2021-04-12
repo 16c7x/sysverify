@@ -1,0 +1,9 @@
+Test1:
+ test: Test1
+ comment: Check sysverify is installed.
+ command: rpm -qa | grep sysverify > /dev/null; if [[ $? == 0 ]] ; then echo "PASS" ; else echo "FAIL" ;  fi
+
+Test2:
+ test: Test2
+ comment: Check /etc/sysverify.d has been created
+ command: ls /etc/sysverify.d > /dev/null; if [[ $? == 0 ]] ; then echo "PASS" ; else echo "FAIL" ;  fi

@@ -1,0 +1,63 @@
+stages:
+  - setup
+  - build
+  - install
+  - uninstall
+  - deploy
+  - cleanup
+
+setup_server:
+  stage: setup
+  script:
+  - echo "### SETUP SERVER"
+  - sudo yum install -y rpm-devel
+  - sudo yum install -y rpm-libs
+  - sudo yum install -y rpmdevtools
+  - sudo yum install -y rpm-build
+  - mkdir -p /rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+  - echo '%_topdir /rpmbuild' > ~/.rpmmacros
+
+build_rpm:
+  stage: build
+  script:
+  - echo "### BUILD RPM"
+  - echo "copy the files to the correct places and run rpmbuild command"
+  - cp .ci/*.spec  /rpmbuild/SPECS/
+  - tar -cvf sysverify.tar sysverify/
+  - mv sysverify.tar /rpmbuild/SOURCES/
+  - rpmbuild --define "buildid $CI_BUILD_ID" --define "commitid $CI_BUILD_REF" -ba /rpmbuild/SPECS/sysverify.spec
+
+test_rpm_install:
+  stage: install
+  script:
+  - echo "### TEST RPM"
+  - echo "do a yum local install of the rpm "
+  - sudo yum localinstall -y /rpmbuild/RPMS/noarch/sysverify*.rpm
+  - sudo yum info sysverify
+  - echo "Testing the test.yaml test created by this package"
+  - sudo /usr/local/script/sysverify
+
+test_rpm_uninstall:
+  stage: uninstall
+  script:
+  - echo "### TEST RPM"
+  - echo "do a yum erase of the rpm"
+  - sudo yum erase -y sysverify
+
+deploy_rpm:
+  stage: deploy
+  script:
+  - echo "### DEPLOY THE RPM"
+  - echo "if the tests pass we should be able to send this up to a repo"
+  #- scp /tmp/sysverify*.rpm puppet@ftizsldppts01.ftdc.cummins.com:/repo/OS/custom-rhel7
+  - rm -rf /tmp/sysverify*
+  when: manual
+
+cleanup:
+  stage: cleanup
+  script:
+  - echo "### CLEANUP"
+  - sudo cp /rpmbuild/RPMS/noarch/sysverify*.rpm /tmp/
+  - echo "uninstall the rpm and delete the build directory structure"
+  - sudo rm -rf /rpmbuild/*
+  when: always
