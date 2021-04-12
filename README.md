@@ -1,6 +1,3 @@
-Gitlab project path..
-http://gitlab.cummins.com/cbs_rpm/Sysverify
-
 There are several ways to run sysverify.
 
 1. It can be run with user defined options via the command lie ```/usr/local/script/sysverify -f /tmp/test.yaml -l /tmp/log``` .This is useful if your debugguing something and want to run one test over an over again.
