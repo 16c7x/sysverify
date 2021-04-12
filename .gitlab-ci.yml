@@ -49,7 +49,6 @@ deploy_rpm:
   script:
   - echo "### DEPLOY THE RPM"
   - echo "if the tests pass we should be able to send this up to a repo"
-  #- scp /tmp/sysverify*.rpm puppet@ftizsldppts01.ftdc.cummins.com:/repo/OS/custom-rhel7
   - rm -rf /tmp/sysverify*
   when: manual
 
